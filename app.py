@@ -6,6 +6,8 @@ coins = ['LCX/ETH']
 totalBuy= []
 totalSell= []
 totalDf = []
+timeInterval = input("Enter time interval(in seconds): ")
+CsvInterval = input("Enter csv time: ")
 while True:
     for i in coins:
         print(i)
@@ -39,22 +41,19 @@ while True:
         print(combined)
 
     # print(len(totalSell))
-    if(len(totalSell)%5 == 0):
+    if(len(totalSell)%int(CsvInterval) == 0):
         csvConfirmation = input("Want to create csv? (y/n) : ")
         if(csvConfirmation.lower() == "y"):
-            if os.path.isfile('file.csv'):
-                print ("info : File already exist")
-            else:
-                print ("info : File not exist... will create new file")
-                with open("file.csv","w+",newline='', encoding='utf-8') as f:
-                    writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                    writer.writerow(["Time","No.", "Buy","Sell","Quantity"])
-            combined.to_csv('file.csv', mode='a', header=False)
-
+            currentDateTimeFile = str(datetime.datetime.now().strftime('%H.%M.%S %d-%m-%Y'))
+            with open(currentDateTimeFile+".csv","w+",newline='', encoding='utf-8') as f:
+                writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                writer.writerow(["Time","No.", "Buy","Sell","Quantity"])
+            combined.to_csv(currentDateTimeFile+".csv", mode='a', header=False)
+            totalDf = []
             # for i in range(len(totalBuy)):
             #     with open('file.csv',"a+",newline='', encoding='utf-8') as f:
             #         writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             #         writer.writerow()
 
 
-    time.sleep(3)
+    time.sleep(int(timeInterval))
