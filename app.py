@@ -2,14 +2,14 @@ import time,requests,os,csv,datetime
 import pandas as pd
 
 url = 'https://exchange-api.lcx.com/order/book'
-coins = ['LCX/ETH']
+coins = {1:'LCX/ETH',2:'LCX/USDC'}
 totalBuy= []
 totalSell= []
 totalDf = []
 timeInterval = input("Enter time interval(in seconds): ")
 CsvInterval = input("Enter csv time: ")
 while True:
-    for i in coins:
+    for k,i in coins.items():
         print(i)
         myobj = {'pair': i}
         print(myobj)
@@ -20,23 +20,23 @@ while True:
         for BoS in l:
             if(BoS == 'buy'):
                 for buy in data[BoS]:
-                    buy.insert(0,str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
-                    buy.insert(1,str(len(totalBuy)+1))
+                    buy.insert(0,"LCX")
+                    buy.insert(1,k)
                     buy.insert(3," ")
             else:
                 for sell in data[BoS]:
-                    sell.insert(0,str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M')))
-                    sell.insert(1,str(len(totalBuy)+1))
+                    sell.insert(0,"LCX")
+                    sell.insert(1,k)
                     sell.insert(2," ")
         totalBuy.append(data['buy'])
         totalSell.append(data['sell'])
-        buyDF = pd.DataFrame(data['buy'],columns=["Time","No.", "Buy","Sell","Quantity"])
-        sellDF = pd.DataFrame(data['sell'],columns=["Time","No.", "Buy","Sell","Quantity"])
+        buyDF = pd.DataFrame(data['buy'],columns=["A","B", "C","D","E"])
+        sellDF = pd.DataFrame(data['sell'],columns=["A","B", "C","D","E"])
         tempCombined = pd.concat([buyDF, sellDF], axis=0)
         totalDf.append(tempCombined)
         combined = pd.concat(totalDf,axis=0)
         pd.set_option("display.max_rows", None, "display.max_columns", None)
-        combined.set_index('Time', inplace=True)
+        combined.set_index('A', inplace=True)
 
         print(combined)
 
@@ -45,9 +45,6 @@ while True:
         csvConfirmation = input("Want to create csv? (y/n) : ")
         if(csvConfirmation.lower() == "y"):
             currentDateTimeFile = str(datetime.datetime.now().strftime('%H.%M.%S %d-%m-%Y'))
-            with open(currentDateTimeFile+".csv","w+",newline='', encoding='utf-8') as f:
-                writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                writer.writerow(["Time","No.", "Buy","Sell","Quantity"])
             combined.to_csv(currentDateTimeFile+".csv", mode='a', header=False)
             totalDf = []
             # for i in range(len(totalBuy)):
