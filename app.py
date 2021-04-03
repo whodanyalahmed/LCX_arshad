@@ -5,6 +5,7 @@ url = 'https://exchange-api.lcx.com/order/book'
 coins = ['LCX/ETH']
 totalBuy= []
 totalSell= []
+totalDf = []
 while True:
     for i in coins:
         print(i)
@@ -18,18 +19,23 @@ while True:
             if(BoS == 'buy'):
                 for buy in data[BoS]:
                     buy.insert(0,str(datetime.datetime.now()))
-                    buy.insert(2," ")
+                    buy.insert(1,len(totalBuy))
+                    buy.insert(3," ")
             else:
                 for sell in data[BoS]:
                     sell.insert(0,str(datetime.datetime.now()))
-                    sell.insert(1," ")
+                    sell.insert(1,len(totalBuy))
+                    sell.insert(2," ")
         totalBuy.append(data['buy'])
         totalSell.append(data['sell'])
-        buyDF = pd.DataFrame(data['buy'],columns=["Time", "Buy","Sell","Quantity"])
-        sellDF = pd.DataFrame(data['sell'],columns=["Time", "Buy","Sell","Quantity"])
-        combined = pd.concat([buyDF, sellDF], axis=0)
+        buyDF = pd.DataFrame(data['buy'],columns=["Time","No.", "Buy","Sell","Quantity"])
+        sellDF = pd.DataFrame(data['sell'],columns=["Time","No.", "Buy","Sell","Quantity"])
+        tempCombined = pd.concat([buyDF, sellDF], axis=0)
+        totalDf.append(tempCombined)
+        combined = pd.concat(totalDf,axis=0)
         print(combined)
 
+    # print(len(totalSell))
     if(len(totalSell)%5 == 0):
         csvConfirmation = input("Want to create csv? (y/n) : ")
         if(csvConfirmation.lower() == "y"):
@@ -46,6 +52,5 @@ while True:
             #         writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             #         writer.writerow()
 
-    print(len(totalSell))
 
     time.sleep(3)
